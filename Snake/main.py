@@ -3,6 +3,8 @@ import sys
 from pygame.math import Vector2
 import random
 
+milliseconds = 125
+
 
 class Snake:
     def __init__(self):
@@ -114,6 +116,7 @@ class Main:
         self.background_music = pygame.mixer.Sound('Sound/Wii Music - Gaming Background Music (HD).mp3')
         self.background_music.set_volume(0.03)
         self.background_music.play(-1)
+        self.milliseconds = 125
 
     def update(self):
         if not self.game_over:
@@ -132,9 +135,11 @@ class Main:
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
+            self.snake.crunch_sound.play()
+            self.milliseconds -= 1
+            pygame.time.set_timer(SCREEN_UPDATE, self.milliseconds)
             self.fruit.randomise()
             self.snake.add_block()
-            self.snake.crunch_sound.play()
         for block in self.snake.body[1:]:
             if block == self.fruit.pos:
                 self.fruit.randomise()
@@ -147,6 +152,8 @@ class Main:
                 self.game_over = True
 
     def reset(self):
+        self.milliseconds = 125
+        pygame.time.set_timer(SCREEN_UPDATE, self.milliseconds)
         self.snake.direction = Vector2(0, -1)
         self.snake.direction_queue = []
         self.snake.body = [Vector2(10, 9), Vector2(10, 10), Vector2(10, 11)]
@@ -201,7 +208,7 @@ game_font = pygame.font.Font('Font/Spring Nature.otf', 22)
 game = Main()
 
 SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 125)
+pygame.time.set_timer(SCREEN_UPDATE, milliseconds)
 
 while True:
     for event in pygame.event.get():
